@@ -23,11 +23,12 @@ end
 %%
 % data = data(:, 1:10);
 % pca transformation
-[P, s] = my_pca(data, 1);
+meandata = mean(data, 2);
+[P, s] = my_pca(data, meandata, 1);
 % dimension reduction
 P = P(:, 1:512); % D x 512
 F = P' * data;  % 512 x N
-X_recon = P * F; % D x N
+X_recon = P * F + meandata; % D x N
 
 
 % save eigen face
@@ -47,7 +48,7 @@ end
 % face reconstruction
 figure;
 for i=1:10
-    im_recon = mapminmax(X_recon(:, i), 0, 1);
+%     im_recon = mapminmax(X_recon(:, i), 0, 1);
     im_recon = reshape(im_recon, im_shape);
     imshow(im_recon)
     pause;
