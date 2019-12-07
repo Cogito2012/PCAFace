@@ -4,6 +4,11 @@ subjs = dir(fullfile(dataset_dir));
 subjs=subjs(~ismember({subjs.name},{'.','..'}));
 subjs=subjs(cell2mat({subjs.isdir}));
 
+result_subj_dir = fullfile(result_dir, 'mean_subjs');
+if ~exist(result_subj_dir, 'dir')
+    mkdir(result_subj_dir);
+end
+
 nSubj = length(subjs);
 mean_all = zeros(im_shape);
 data = [];
@@ -23,7 +28,7 @@ for i=1:nSubj
     mean_subj = mean_subj / length(imgs);
     %imshow(mean_subj)
     subID = sprintf('mean_sub%02d', i);
-    imwrite(mean_subj, fullfile(result_dir, [subID, '.jpg']));
+    imwrite(mean_subj, fullfile(result_subj_dir, [subID, '.jpg']));
 end
 mean_all = mean_all / nImgs;
 imwrite(mean_all, fullfile(result_dir, 'mean_all.jpg'));

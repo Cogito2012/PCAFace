@@ -1,3 +1,4 @@
-att_faces/
+att_faces/*
 output/
 *.jpg
+*.m~
