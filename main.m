@@ -24,7 +24,7 @@ end
 % data = data(:, 1:10);
 % pca transformation
 meandata = mean(data, 2);
-[P, s] = my_pca(data, meandata, 1);
+[P, s] = facePCA(data, meandata, 1);
 % dimension reduction
 P = P(:, 1:512); % D x 512
 F = P' * data;  % 512 x N
