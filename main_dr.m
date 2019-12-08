@@ -33,6 +33,7 @@ total_per = cumsum(per);
 valid_inds = find(total_per > critera);
 feat_dim = min(valid_inds);
 % feat_dim = 512;
+fprintf('Required number of eigen faces is: %d\n', feat_dim);
 
 % dimension reduction
 P = P(:, 1:feat_dim); % D x 512
@@ -49,7 +50,7 @@ plot(1:length(total_per), total_per, 'ro');
 xlabel('PCA index');
 ylabel('Percentage of variance');
 
-saveEigenFace = true;
+saveEigenFace = false;
 if saveEigenFace
     % save eigen face
     eigenFace_dir = fullfile(result_dir, 'eigenFaces');
@@ -73,20 +74,25 @@ if ~exist(faces_recon_dir, 'dir')
 end
 figure;
 for i=1:10
-%     im_recon = mapminmax(X_recon(:, i), 0, 1);
+    % original faces
+    subplot(1,3,1)
+    im_origin = reshape(data(:, i), im_shape);
+    imshow(im_origin)
+    title('Original Face');
+    
+    % reconstructed faces
     im_recon = X_recon(:, i);
     im_recon = (im_recon - min(im_recon)) / (max(im_recon) - min(im_recon));
     im_recon = reshape(im_recon, im_shape);
     imwrite(im_recon, fullfile(faces_recon_dir, sprintf('recon%02d.jpg', i)))
-    
-    subplot(1,2,1)
-    title('Original Face');
-    im_origin = reshape(data(:, i), im_shape);
-    imshow(im_origin)
-    
-    subplot(1,2,2)
-    title('Reconstructed Face');
+    subplot(1,3,2)
     imshow(im_recon)
+    title('Reconstructed Face');
+    
+    im_diff = abs(im_origin - im_recon);
+    subplot(1,3,3);
+    imshow(im_diff)
+    title('Difference Face')
 %     pause;
 end
 
