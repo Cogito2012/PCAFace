@@ -2,3 +2,5 @@ att_faces/*
 output/
 *.jpg
 *.m~
+*.asv
+cifar*

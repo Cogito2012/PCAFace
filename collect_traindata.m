@@ -1,4 +1,4 @@
-function [train_data, train_label, test_data1, test_label1, test_data2, test_label2, train_recog_label, test_recog_label] = collect_traindata(dataset_dir, im_shape, result_dir)
+function [train_data, train_label, test_data1, test_label1, test_data2, test_label2, train_recog_label, test_recog_label] = collect_traindata(dataset_dir, im_shape)
 
 subjs = dir(fullfile(dataset_dir));
 subjs=subjs(~ismember({subjs.name},{'.','..'}));
