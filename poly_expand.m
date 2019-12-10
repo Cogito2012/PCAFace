@@ -1,11 +1,11 @@
-function z = poly_expand(X, p)
+function z = poly_expand(X)
 % X: k * N
 
-if p == 0
-    z = X;
-else
-    z = ones(size(X));
-    for i = 1 : p
-        z = [z; X.^i];
+% expand the squares
+z = cat(1, X, X.^2);
+% expand the cross-products
+for i=1:size(X, 1)-1
+    for j=i+1:size(X, 1)
+        z = cat(1, z, X(i, :) .* X(j, :));
     end
 end
