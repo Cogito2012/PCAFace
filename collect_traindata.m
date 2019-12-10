@@ -26,7 +26,7 @@ for i=1:length(subjs_train)
     % prepare the training images within the training subjects
     for j=1:length(imgs_train)
         im = imread(fullfile(imgs_train(j).folder, imgs_train(j).name));  % uint8 data
-        im_data = double(im) / 255.0;
+        im_data = double(im);
         im_data = reshape(im_data, [im_shape(1)*im_shape(2), 1]);
         train_data = cat(2, train_data, im_data);  % wh x (35 * 8)
         train_label = cat(2, train_label, 1); % 1 x (35 * 8)
@@ -35,7 +35,7 @@ for i=1:length(subjs_train)
     % prepare the testing images within the training subjects
     for j=1:length(imgs_test)
         im = imread(fullfile(imgs_test(j).folder, imgs_test(j).name));  % uint8 data
-        im_data = double(im) / 255.0;
+        im_data = double(im);
         im_data = reshape(im_data, [im_shape(1)*im_shape(2), 1]);
         test_data1 = cat(2, test_data1, im_data);  % wh x (35 * 2)
         test_label1 = cat(2, test_label1, 1); % 1 x (35 * 2)
@@ -50,7 +50,7 @@ for i=1:length(subjs_test)
     fprintf('Process testing subject: %d\n', 35 + i);
     for j=1:length(imgs)
         im = imread(fullfile(imgs(j).folder, imgs(j).name));  % uint8 data
-        im_data = double(im) / 255.0;
+        im_data = double(im);
         im_data = reshape(im_data, [im_shape(1)*im_shape(2), 1]);
         test_data2 = cat(2, test_data2, im_data);  % wh x (35 * 2)
         test_label2 = cat(2, test_label2, 1); % 1 x (35 * 2)
