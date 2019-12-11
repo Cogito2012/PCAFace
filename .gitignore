@@ -1,6 +1,7 @@
 att_faces/*
 output/
 xj/
+lib/*
 *.jpg
 *.m~
 *.asv
