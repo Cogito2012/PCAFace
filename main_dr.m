@@ -21,11 +21,11 @@ end
 
 % pca
 %%
-type = 'Eigen';
+type = 'SVD';
 % data = data(:, 1:10);
 % pca transformation
 meandata = mean(data, 2);
-[P, s, per] = facePCA(data, meandata, type);
+[PC, s, per] = facePCA(data, meandata, type);
 
 % select the required number of eigen faces
 critera = 0.99;
@@ -36,7 +36,7 @@ feat_dim = min(valid_inds);
 fprintf('Required number of eigen faces is: %d\n', feat_dim);
 
 % dimension reduction
-P = P(:, 1:feat_dim); % D x 512
+P = PC(:, 1:feat_dim); % D x 512
 F = P' * data;  % 512 x N
 X_recon = P * F + meandata; % D x N
 
@@ -44,11 +44,33 @@ X_recon = P * F + meandata; % D x N
 per = per(1:feat_dim);
 total_per = total_per(1:feat_dim);
 figure;
+fontsize = 18;
 % plot(1:length(per), per, 'go');
 % hold on
 plot(1:length(total_per), total_per, 'ro');
-xlabel('PCA index');
-ylabel('Percentage of variance');
+hold on;
+plot(1:length(per), per, 'b*');
+set(gca,'FontSize',fontsize)
+xlabel('PC index', 'fontsize', fontsize);
+ylabel('Percentage of variance', 'fontsize', fontsize);
+legend('cumulative percentage', 'percentage', 'fontsize', fontsize);
+
+ %%
+feat_dims = [32, 64, 128, 256, 512, 1024];
+% face reconstruction
+faces_recon_dir = fullfile(result_dir, 'faces_recon_sub1_im1_svd');
+if ~exist(faces_recon_dir, 'dir')
+    mkdir(faces_recon_dir);
+end
+for i=1:length(feat_dims)
+    fprintf('Reconstruct with %d eigen faces.\n', feat_dims(i));
+    Pi = PC(:, 1:feat_dims(i)); % D x K
+    F = Pi' * data(:, 1);  % K x 1
+    im_recon = Pi * F + meandata; % D x N
+    im_recon = (im_recon - min(im_recon)) / (max(im_recon) - min(im_recon));
+    im_recon = reshape(im_recon, im_shape);
+    imwrite(im_recon, fullfile(faces_recon_dir, sprintf('recon_dim%03d.jpg', feat_dims(i))));
+end
 
 saveEigenFace = false;
 if saveEigenFace
