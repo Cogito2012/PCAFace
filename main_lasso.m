@@ -1,7 +1,4 @@
-clc
-clear
-close all
-
+function main_lasso()
 %% Load Data
 % input and output directories
 dataset_dir = 'att_faces';
@@ -69,8 +66,32 @@ for i=1:64
     inds = find(abs(im_P(i, :))~=0);
     im_P(i, inds) = 1;
 end
-imshow(im_P)
+imwrite(im_P, fullfile('lasso_beta.png'));
 
+%%  Face identification
+feat_dim = [];
+expand = false;
 
+% Dimension Reduction
+[X_train, Y_train, P] = get_LASSO_recog_data(train_data, train_recog_label, expand, [], feat_dim);
+feat_dim = size(P, 2);
+
+% Linear Regression for Classification
+cls_id = unique(train_recog_label); % 1:35
+Y_train = onehot(Y_train, cls_id);  % 2 x 2N
+W = Y_train * X_train' * inv(X_train * X_train'); % 2 x K
+
+% predict labels
+[X_test, Y_test, P] = get_LASSO_recog_data(test_data1, test_recog_label, expand, P, feat_dim);
+Y_pred = W * X_test;
+
+Y_hat = zeros(1, size(Y_pred, 2));
+for i=1:size(Y_pred, 2)
+    [~, inds] = max(Y_pred(:, i));
+    Y_hat(i) = cls_id(inds);
+end
+diff = Y_test - Y_hat;
+acc = 1 - nnz(diff) / length(diff);
+fprintf('Lasso method, dimension: %d, face identification accuracy: %.2f\n', feat_dim, acc);
 
 

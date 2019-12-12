@@ -1,6 +1,4 @@
-clc
-clear
-close all
+function main_svm()
 %% load dataset
 % input and output directories
 dataset_dir = 'att_faces';

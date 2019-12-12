@@ -7,4 +7,5 @@ figs/
 *.jpg
 *.m~
 *.asv
+*.pdf
 cifar*

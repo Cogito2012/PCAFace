@@ -1,7 +1,5 @@
-clc
-clear
-close all
-%% task 2: Face Recognition with PCA
+function main_cls()
+%% load dataset
 % input and output directories
 dataset_dir = 'att_faces';
 result_dir = 'output';
@@ -57,7 +55,7 @@ diff = Y_test - Y_hat;
 acc = 1 - nnz(diff) / length(diff);
 fprintf('DR method: %s, dimension: %d, face recognition accuracy: %.2f\n', type, feat_dim, acc);
 
-%% Face Verification
+%% Face Identification
 type = 'SVD';
 feat_dim = 16;
 expand = true;
@@ -81,4 +79,4 @@ for i=1:size(Y_pred, 2)
 end
 diff = Y_test - Y_hat;
 acc = 1 - nnz(diff) / length(diff);
-fprintf('DR method: %s, dimension: %d, face verification accuracy: %.2f\n', type, feat_dim, acc);
+fprintf('DR method: %s, dimension: %d, face identification accuracy: %.2f\n', type, feat_dim, acc);

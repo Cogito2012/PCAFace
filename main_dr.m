@@ -1,7 +1,6 @@
-clc
-clear
-close all
+function main_dr()
 %% task 1: EigenFace with PCA, Face reconstruction
+%% load data set
 % input and output directories
 dataset_dir = 'att_faces';
 result_dir = 'output';
@@ -25,11 +24,11 @@ type = 'SVD';
 % data = data(:, 1:10);
 % pca transformation
 meandata = mean(data, 2);
-[PC, s, per] = facePCA(data, meandata, type);
+[PC, s, percentage] = facePCA(data, meandata, type);
 
 % select the required number of eigen faces
 critera = 0.99;
-total_per = cumsum(per);
+total_per = cumsum(percentage);
 valid_inds = find(total_per > critera);
 feat_dim = min(valid_inds);
 % feat_dim = 512;
@@ -41,7 +40,7 @@ F = P' * data;  % 512 x N
 X_recon = P * F + meandata; % D x N
 
 % compute the percentage of variance
-per = per(1:feat_dim);
+per = percentage(1:feat_dim);
 total_per = total_per(1:feat_dim);
 figure;
 fontsize = 18;
@@ -54,6 +53,14 @@ set(gca,'FontSize',fontsize)
 xlabel('PC index', 'fontsize', fontsize);
 ylabel('Percentage of variance', 'fontsize', fontsize);
 legend('cumulative percentage', 'percentage', 'fontsize', fontsize);
+
+%% Number of faces vs. Criteria
+total_per = cumsum(percentage);
+for criteria=0.80:0.01:0.99
+    valid_inds = find(total_per > critera);
+    feat_dim = min(valid_inds);
+end
+
 
  %%
 feat_dims = [32, 64, 128, 256, 512, 1024];
@@ -72,7 +79,21 @@ for i=1:length(feat_dims)
     imwrite(im_recon, fullfile(faces_recon_dir, sprintf('recon_dim%03d.jpg', feat_dims(i))));
 end
 
-saveEigenFace = false;
+%%
+feat_dim = [2, 4, 8, 16, 32, 64, 128];
+reg = [0.89, 0.95, 0.99, 0.97, 0.51, 0.54, 0.56];
+ver = [0.24, 0.53, 0.91, 0.99, 0.03, 0, 0.03];
+
+plot(feat_dim, reg, 'r-','LineWidth',2)
+hold on
+plot(feat_dim, ver, 'g-','LineWidth',2)
+set(gca,'FontSize',18)
+xlabel('Feature dimension', 'FontSize', 18)
+ylabel('Classification accuracy', 'FontSize', 18)
+lgd = legend({'Face regconition', 'Face identification'}, 'FontSize', 18);
+grid on
+%%
+saveEigenFace = true;
 if saveEigenFace
     % save eigen face
     eigenFace_dir = fullfile(result_dir, 'eigenFaces');
@@ -89,7 +110,7 @@ if saveEigenFace
     end
 end
 
-% face reconstruction
+%% face reconstruction
 faces_recon_dir = fullfile(result_dir, 'faces_recon_sub1');
 if ~exist(faces_recon_dir, 'dir')
     mkdir(faces_recon_dir);
