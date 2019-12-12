@@ -1,8 +1,7 @@
 clc
 clear
 close all
-
-%% Load Data
+%% load dataset
 % input and output directories
 dataset_dir = 'att_faces';
 result_dir = 'output';
@@ -35,42 +34,37 @@ else
     load(nonface_file);
 end
 %%
+X = cat(2, train_data, train_nonface_data);
+y = cat(2, train_label, train_nonface_label);
+model_file = fullfile(result_dir, 'SAE.mat');
+if ~exist(model_file, 'file')
+    hiddenSizes = [64; 32; 16];
+    autoenc1 = trainAutoencoder(X, hiddenSize(1));
+    features1 = encode(autoenc1,X);
+    hiddenSize = 32;
+    autoenc2 = trainAutoencoder(features1,hiddenSize(2));
+    features2 = encode(autoenc2,features1);
+    hiddenSize = 16;
+    autoenc3 = trainAutoencoder(features2,hiddenSize(3));
+    features3 = encode(autoenc3,features2);
+    softnet = trainSoftmaxLayer(features3, y, 'LossFunction','crossentropy');
+    % construct Stacked AutoEncoders
+    SAENet = stack(autoenc1,autoenc2,autoenc3,softnet);
+    SAENet = train(SAENet,X,y);
+    save(model_file, 'SAENet', 'hiddenSizes');
+else
+    load(model_file);
+end
 
-%%  Face Recognition
-feat_dim = [];
-expand = false;
-cls_id = [0, 1]; % 1: positive, 0: negative
+X = cat(2, test_data1, test_nonface_data1);
+y = cat(2, test_label1, test_nonface_label1);
 
-% Dimension Reduction
-[X_train, Y_train, P] = get_LASSO_cls_data(train_data, train_label, train_nonface_data, train_nonface_label, expand, [], feat_dim);
-feat_dim = size(P, 2);
+% testing and evaluation
+Y_pred = SAENet(X);
+Y_test = y;
 
-% Linear Regression for Classification
-Y_train = onehot(Y_train, cls_id);  % 2 x 2N
-W = Y_train * X_train' * inv(X_train * X_train'); % 2 x K
-
-% predict labels
-[X_test, Y_test, P] = get_LASSO_cls_data(test_data1, test_label1, test_nonface_data1, test_nonface_label1, expand, P, feat_dim);
-Y_pred = W * X_test;
-
-Y_hat = zeros(1, size(Y_pred, 2));
-Y_hat(find(Y_pred(2, :) > Y_pred(1, :))) = 1;
+Y_hat = double(Y_pred > 0.5);
 diff = Y_test - Y_hat;
 acc = 1 - nnz(diff) / length(diff);
-fprintf('Lasso method, dimension: %d, face recognition accuracy: %.2f\n', feat_dim, acc);
-
-%%
-% visualize B (sparse coefficients)
-nr = floor(size(P, 1)/64);
-nc = size(P, 2);
-im_P = zeros(nr, nc);
-for i=1:64
-    im_P(i, :) = mean(P((i-1)*64+1:i*64, :), 1);
-    inds = find(abs(im_P(i, :))~=0);
-    im_P(i, inds) = 1;
-end
-imshow(im_P)
-
-
-
+fprintf('Stacked Autoencoder, dimension: 16, face recognition accuracy: %.2f\n', acc);
 
